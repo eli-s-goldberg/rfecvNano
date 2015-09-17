@@ -1,8 +1,16 @@
-import pandas as pd
+# package import
+import multiprocessing
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set(style="white")
+multiprocessing.cpu_count()
+from helperFunctions import *
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+from sklearn import cross_validation
+from sklearn.feature_selection import RFECV
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.cross_validation import StratifiedShuffleSplit
+
 
 # locate the csv database
 path = './transportData.csv'
@@ -19,33 +27,76 @@ data = pd.DataFrame.from_csv(path, header=0, sep=',', index_col=0, parse_dates=T
     # 'mbEffluent', 'mbRetained', 'mbEffluent_norm', 'mbRetained_norm']
 
 # Not all the features are sufficient to support ML (our database is small anyway), so let's drop some features.
+# This consistutes the first drop round.
 featuresToDrop = ['Hamaker','Dispersivity','NanoSize','pHIEPDist','PartCollSizeRatio','ColumnLWRatio',
-                  'mbEffluent', 'mbRetained','mbRetained_norm','mbEffluent_norm']
+                  'mbEffluent', 'mbRetained','mbEffluent_norm']
 data = data.drop(featuresToDrop,1)
 
-def plot_corr(df,size=10):
-    '''Function plots a graphical correlation matrix for each pair of columns in the dataframe.
+# Let's check to see how correlated our variables are. print data.corr() to inspect values.
+# plot_corr(data,size=10)
 
-    Input:
-        df: pandas DataFrame
-        size: vertical and horizontal size of the plot'''
-    from matplotlib import cm
 
-    corr = df.corr()
-    label = df.corr()
-    mask = np.tri(corr.shape[0],k=-1)
-    corr = np.ma.array(corr,mask=mask)
-    mask[np.triu_indices_from(mask)] = True
 
-    fig, ax = plt.subplots(figsize=(size, size))
-    ax.matshow(corr)
-    cmap = cm.get_cmap('jet',10)
-    cmap.set_bad('w')
+# rfecv seed (to control randomness and get repeatable results
+SEED = 69
 
-    plt.xticks(range(len(label.columns)), label.columns, rotation=90)
-    plt.yticks(range(len(label.columns)), label.columns)
-    ax.imshow(corr,interpolation='nearest',cmap=cmap)
-    plt.show()
+# set the number of model iterations, where the more the better. Each run takes several minutes, so 100-500 is best.
+iterator1 = 10 # this is the number of model iterations to go through.
 
-plot_corr(data,size=10)
-# Let's check to see how correlated our variables are
+# create the calculated data fields:
+data['tempKelvin'] = 298.15 # the temperature is always assumed to be 25 degrees.
+data['relPermValue'] = data.apply(relPermittivity,axis=1) # Calculate the relative permittivity value
+data['debyeLength'] = data.apply(debyeLength,axis=1) # Calculate the debye length
+data['pecletNumber'] = data.apply(pecletNumber,axis=1)
+data['aspectRatio'] = data.PartDiam/data.CollecDiam
+data['zetaRatio'] = data.PartZeta/data.CollecZeta
+data['pHIepRatio'] = data.pH/data.PartIEP
+
+# factorize the remaining training data fields
+data['Coating'] = data['Coating'].factorize()[0]
+data['SaltType'] = data['Coating'].factorize()[0]
+
+# Do not include any experiments which have null values.
+data = data.dropna()
+
+# Set the target data fields. In this case, the 'ObsRPShape' and the 'mbRetained_norm' (i.e., retained fration, RF).
+targetDataRPShape = data['ObsRPShape'].factorize()[0] # make sure that text values are converted to numeric values
+targetDataRPShapeUniqueList = list(set(data['ObsRPShape'].unique()))
+
+targetDataRF = data.mbRetained_norm
+
+
+# Drop the fields that are subordinate to the calculated fields (i.e., the ones wrapped up in the dimensionless numbers
+# (e.g., salttype and pH are in debyelength .
+data = data.drop(['ObsRPShape','mbRetained_norm','Darcy','NMId','ObsRPShape','relPermValue','tempKelvin','TypeNOM',
+                  'PartZeta','PartIEP','PartDiam','CollecDiam','CollecZeta','PvIn','IonStr','SaltType','pH'],1)
+
+# assign the remaining data to the training data set.
+trainingData = data
+
+# Store the training data and target data as a matrices for import into ML.
+trainingDataMatrix = trainingData.as_matrix()
+targetDataRPShapeMatrix = targetDataRPShape
+targetDataRFMatrix =  targetDataRF.as_matrix()
+
+# Get a list of the trainingData features remaining. This is used later for plotting etc.
+trainingDataNames =  list(trainingData)
+# print trainingDataNames
+
+stratShuffleSplitRFECVRandomForestClassification (nEstimators= 500,
+                                                  iterator1=1,
+                                                  minSamplesSplit=2,
+                                                  maxFeatures=None,
+                                                  maxDepth=4,
+                                                  nFolds=5,
+                                                  targetDataMatrix = targetDataRPShapeMatrix,
+                                                  trainingData = trainingData,
+                                                  trainingDataMatrix = trainingDataMatrix,
+                                                  SEED = 5)
+
+## Output file summary
+fileName1 = 'f1_score_all.csv'
+fileName2 = 'class_IFIRS.csv'
+fileName3 = 'class_optimum_length.csv'
+fileName4 = 'class_sel_feature_importances.csv'
+fileName5 = 'class_rfecv_grid_scores.csv'

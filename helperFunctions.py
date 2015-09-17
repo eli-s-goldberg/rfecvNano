@@ -756,3 +756,201 @@ def pecletNumber (row):
     stokesEinsteinDiff =  float(bolzConstant*float(row['tempKelvin']))/(6*math.pi*absVisc*float(row['PartDiam']/2))
 
     return float (row['Darcy']*row['CollecDiam']/stokesEinsteinDiff)
+
+def plot_corr(df,size=10):
+    '''Function plots a graphical correlation matrix for each pair of columns in the dataframe.
+
+    Input:
+        df: pandas DataFrame
+        size: vertical and horizontal size of the plot'''
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+    import numpy as np
+
+    corr = df.corr()
+    label = df.corr()
+    mask = np.tri(corr.shape[0],k=-1)
+    corr = np.ma.array(corr,mask=mask)
+    mask[np.triu_indices_from(mask)] = True
+
+    fig, ax = plt.subplots(figsize=(size, size))
+    ax.matshow(corr)
+    cmap = cm.get_cmap('jet',10)
+    cmap.set_bad('w')
+
+    plt.xticks(range(len(label.columns)), label.columns, rotation=90)
+    plt.yticks(range(len(label.columns)), label.columns)
+    ax.imshow(corr,interpolation='nearest',cmap=cmap)
+    plt.show()
+
+def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
+                                                      iterator1,
+                                                      minSamplesSplit,
+                                                      maxFeatures,
+                                                      maxDepth,
+                                                      nFolds,
+                                                      targetDataMatrix,
+                                                      trainingData,
+                                                      trainingDataMatrix,
+                                                      SEED):
+    '''
+
+    :param nEstimators: This is the number of trees in the forest (typically 500-1000 or so)
+    :param iterator1: This is the number of model iterations. For a breakdown of model structure, see the wiki
+                      (it's clearly marked...somewhere)
+    :param minSamplesSplit: this is the minimum number of samples to split. 2 is a bit small...less is typically more.
+    :param maxFeatures:
+    :param nFolds:
+    :param targetDataMatrix:
+    :param trainingData:
+    :param trainingDataMatrix:
+    :param SEED:
+    :return:
+    '''
+    import multiprocessing
+    import numpy as np
+    multiprocessing.cpu_count()
+    # from helperFunctions import *
+    import pandas as pd
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn import metrics
+    from sklearn import cross_validation
+    from sklearn.feature_selection import RFECV
+    from sklearn.cross_validation import StratifiedKFold
+    from sklearn.cross_validation import StratifiedShuffleSplit
+
+    # rfecv pre-allocation tables, seeding
+    X_train = []
+    X_holdout = []
+    y_train = []
+    y_holdout = []
+    rfecvGridScoresAll = []
+    optimumLengthAll = []
+    feature_names = []
+
+    # Re-definition of the RFC to employ feature importance as a proxy for weighting to employ RFECV.
+    class RandomForestClassifierWithCoef(RandomForestClassifier):
+        def fit(self, *args, **kwargs):
+            super(RandomForestClassifierWithCoef, self).fit(*args, **kwargs)
+            self.coef_ = self.feature_importances_
+
+    ## Re-creation of the RFC object with ranking proxy coefficients
+    rfc = RandomForestClassifierWithCoef(n_estimators=nEstimators,
+                                         min_samples_split=minSamplesSplit,
+                                         bootstrap=True,
+                                         n_jobs=-1,
+                                         max_features=maxFeatures,
+                                         oob_score=True,
+                                         max_depth=maxDepth)
+
+    ## Employ Recursive feature elimination with automatic tuning of the number of features selected with CV (RFECV)
+    #
+    for kk in range(0,iterator1):
+        print "iteration no: ", kk+1
+        # Shuffle and split the dataset using a stratified approach to minimize the influence of class imbalance.
+        SSS = StratifiedShuffleSplit(targetDataMatrix, n_iter=1,test_size=0.10,random_state=SEED*kk)
+        for train_index,test_index in SSS:
+            X_train, X_holdout = trainingDataMatrix[train_index],trainingDataMatrix[test_index]
+            y_train, y_holdout = targetDataMatrix[train_index],targetDataMatrix[test_index]
+
+        # Call the RFECV function. Additional splitting is done by stratification shuffling and splitting. 5 folds. 5 times,
+        # with a random seed controlling the split.
+
+        rfecv = RFECV(estimator=rfc, step=1, cv = StratifiedKFold(y_train,n_folds=nFolds,shuffle=True,random_state=SEED*kk),
+                      scoring='accuracy') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro
+
+        # First, the recursive feature elimination model is trained. This fits to the optimum model and begins recursion.
+        rfecv = rfecv.fit(X_train, y_train)
+
+        # Second, the cross-validation scores are calculated such that grid_scores_[i] corresponds to the CV score
+        # of the i-th subset of features. In other words, from all the features to a single feature, the cross validation
+        # score is recorded.
+        rfecvGridScoresAll = rfecvGridScoresAll.append([rfecv.grid_scores_])
+
+        # Third, the .support_ attribute reports whether the feature remains after RFECV or not. The possible parameters are
+        # inspected by their ranking. Low ranking features are removed.
+        supPort = rfecv.support_ # True/False values, where true is a parameter of importance identified by recursive alg.
+        possParams = rfecv.ranking_
+        min_feature_params = rfecv.get_params(deep=True)
+        optimumLengthAll = optimumLengthAll.append([rfecv.n_features_])
+        featureSetIDs = list(supPort)
+        featureSetIDs = list(featureSetIDs)
+        feature_names = list(feature_names)
+        namedFeatures = list(trainingData.columns.values)
+        namedFeatures = np.array(namedFeatures)
+
+        # Loop over each item in the list of true/false values, if true, pull out the corresponding feature name and store
+        # it in the appended namelist. This namelist is rewritten each time, but the information is retained.
+        nameList = []   # Initialize a blank array to accept the list of names for features identified as 'True',
+                        # or important.
+        print featureSetIDs
+        print len(featureSetIDs)
+        for i in range(0,len(featureSetIDs)):
+            if featureSetIDs[i]:
+                nameList.append(feature_names[i])
+            else:
+                a=1
+                # print("didn't make it")
+                # print(feature_names[i])
+        nameList = pd.DataFrame(nameList)
+        nameListAll = nameListAll.append(nameList) # append the name list
+        nameList = list(nameList)
+        nameList = np.array(nameList)
+
+        # Fourth, the training process begins anew, with the objective to trim to the optimum feature and retrain the model
+        # without cross validation i.e., test the holdout set. The new training test set size for the holdout validation
+        # should be the entire 90% of the training set (X_trimTrainSet). The holdout test set also needs to be
+        # trimmed. The same transformation is performed on the holdout set (X_trimHoldoutSet).
+        X_trimTrainSet = rfecv.transform(X_train)
+        X_trimHoldoutSet = rfecv.transform(X_holdout)
+
+
+        # Fifth, no recursive feature elimination is needed (it has already been done and the poor features removed).
+        # Here the model is trained against the trimmed training set X's and corresponding Y's.
+        rfc.fit(X_trimTrainSet,y_train)
+
+        # Holdout test results are generated here.
+        preds = rfc.predict(X_trimHoldoutSet) # Predict the class from the holdout dataset. Previous call: rfecv.predict(X_holdout)
+        print preds
+        print y_holdout
+        rfc_all_f1 = metrics.f1_score(y_holdout,preds,average = 'weighted') # determine the F1
+        rfc_all_f2 = metrics.r2_score(y_holdout,preds) # determine the R^2 Score
+        rfc_all_f3 = metrics.mean_absolute_error(y_holdout,preds) # determine the MAE - Do this because we want to determine sign.
+
+        # append the previous scores for aggregated analysis
+        classScoreAll = classScoreAll.append([rfc_all_f1]) # append the previous scores for aggregated analysis.
+        classScoreAll2 = classScoreAll2.append([rfc_all_f2])
+        classScoreAll3 = classScoreAll3.append([rfc_all_f3])
+        refinedFeatureImportances = rfc.feature_importances_ # determine the feature importances for aggregated analysis.
+        featureImportancesAll = featureImportancesAll.append([refinedFeatureImportances])
+
+
+        # Output file creation
+        print("List of Important Features Identified by Recursive Selection Method:")
+        print(nameListAll)
+        nameListAll.to_csv('class_IFIRS.csv')
+        nameListAll.count()
+
+        print("f1 weighted score for all runs:")
+        print(classScoreAll)
+        classScoreAll.to_csv('f1_score_all.csv')
+
+        print("R^2 score for all runs:")
+        print(classScoreAll2)
+        classScoreAll2.to_csv('class_Rsq_score_all.csv')
+
+        print("MAE score for all runs:")
+        print(classScoreAll3)
+        classScoreAll3.to_csv('class_MAE_score_all.csv')
+
+        print("Optimal number of features:")
+        print(optimumLengthAll)
+        optimumLengthAll.to_csv('class_optimum_length.csv')
+
+        print("Selected Feature Importances:")
+        print(featureImportancesAll)
+        featureImportancesAll.to_csv('class_sel_feature_importances.csv')
+
+        print("mean_squared_error Grid Score for Increasing Features")
+        print(rfecvGridScoresAll)
+        rfecvGridScoresAll.to_csv('class_rfecv_grid_scores.csv')
