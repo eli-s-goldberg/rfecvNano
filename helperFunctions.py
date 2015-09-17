@@ -826,7 +826,17 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
     y_holdout = []
     rfecvGridScoresAll = []
     optimumLengthAll = []
-    feature_names = []
+    # feature_names = []
+    a = []
+    rfc_all_f1 = []
+    nameListAll = pd.DataFrame()
+    optimumLengthAll = pd.DataFrame()
+    classScoreAll = pd.DataFrame()
+    classScoreAll2 = pd.DataFrame()
+    classScoreAll3 = pd.DataFrame()
+    featureImportancesAll = pd.DataFrame()
+    rfecvGridScoresAll = pd.DataFrame()
+
 
     # Re-definition of the RFC to employ feature importance as a proxy for weighting to employ RFECV.
     class RandomForestClassifierWithCoef(RandomForestClassifier):
@@ -875,7 +885,8 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
         optimumLengthAll = optimumLengthAll.append([rfecv.n_features_])
         featureSetIDs = list(supPort)
         featureSetIDs = list(featureSetIDs)
-        feature_names = list(feature_names)
+        # print feature_names
+        feature_names = list(trainingData.columns.values)
         namedFeatures = list(trainingData.columns.values)
         namedFeatures = np.array(namedFeatures)
 
@@ -883,8 +894,8 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
         # it in the appended namelist. This namelist is rewritten each time, but the information is retained.
         nameList = []   # Initialize a blank array to accept the list of names for features identified as 'True',
                         # or important.
-        print featureSetIDs
-        print len(featureSetIDs)
+        # print featureSetIDs
+        # print len(featureSetIDs)
         for i in range(0,len(featureSetIDs)):
             if featureSetIDs[i]:
                 nameList.append(feature_names[i])
@@ -925,32 +936,32 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
         featureImportancesAll = featureImportancesAll.append([refinedFeatureImportances])
 
 
-        # Output file creation
-        print("List of Important Features Identified by Recursive Selection Method:")
-        print(nameListAll)
-        nameListAll.to_csv('class_IFIRS.csv')
-        nameListAll.count()
+    # Output file creation
+    print("List of Important Features Identified by Recursive Selection Method:")
+    print(nameListAll)
+    nameListAll.to_csv('class_IFIRS.csv')
+    nameListAll.count()
 
-        print("f1 weighted score for all runs:")
-        print(classScoreAll)
-        classScoreAll.to_csv('f1_score_all.csv')
+    print("f1 weighted score for all runs:")
+    print(classScoreAll)
+    classScoreAll.to_csv('f1_score_all.csv')
 
-        print("R^2 score for all runs:")
-        print(classScoreAll2)
-        classScoreAll2.to_csv('class_Rsq_score_all.csv')
+    print("R^2 score for all runs:")
+    print(classScoreAll2)
+    classScoreAll2.to_csv('class_Rsq_score_all.csv')
 
-        print("MAE score for all runs:")
-        print(classScoreAll3)
-        classScoreAll3.to_csv('class_MAE_score_all.csv')
+    print("MAE score for all runs:")
+    print(classScoreAll3)
+    classScoreAll3.to_csv('class_MAE_score_all.csv')
 
-        print("Optimal number of features:")
-        print(optimumLengthAll)
-        optimumLengthAll.to_csv('class_optimum_length.csv')
+    print("Optimal number of features:")
+    print(optimumLengthAll)
+    optimumLengthAll.to_csv('class_optimum_length.csv')
 
-        print("Selected Feature Importances:")
-        print(featureImportancesAll)
-        featureImportancesAll.to_csv('class_sel_feature_importances.csv')
+    print("Selected Feature Importances:")
+    print(featureImportancesAll)
+    featureImportancesAll.to_csv('class_sel_feature_importances.csv')
 
-        print("mean_squared_error Grid Score for Increasing Features")
-        print(rfecvGridScoresAll)
-        rfecvGridScoresAll.to_csv('class_rfecv_grid_scores.csv')
+    print("mean_squared_error Grid Score for Increasing Features")
+    print(rfecvGridScoresAll)
+    rfecvGridScoresAll.to_csv('class_rfecv_grid_scores.csv')
