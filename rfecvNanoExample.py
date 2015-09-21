@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from biokit.viz import corrplot
 matplotlib.rcParams['figure.dpi'] = 120
 matplotlib.rcParams['figure.figsize'] = (8,6)
+import seaborn as sns
 
 # locate the csv database
 path = './transportData.csv'
@@ -81,7 +82,7 @@ data = data.drop(['ObsRPShape', # target value (to be predicted)
                   'pH'# included in dimensionless ratio of pH to IEP
                  ],1)
 
-print list(data) # print out the remaining data field headers
+# print list(data) # print out the remaining data field headers
 
 # Make sure to install biokit dependencies with requirements.txt
 # https://pypi.python.org/pypi/biokit/0.0.5
@@ -102,20 +103,20 @@ targetDataRFMatrix =  targetDataRF.as_matrix() # all numbers, no headers
 trainingDataNames =  list(trainingData)
 # print trainingDataNames
 
-print targetDataRPShapeMatrix
-print trainingData
+# print targetDataRPShapeMatrix
+# print trainingData
 
 
-stratShuffleSplitRFECVRandomForestClassification (nEstimators= 1000,
-                                                  iterator1=10,
-                                                  minSamplesSplit=2,
-                                                  maxFeatures=None,
-                                                  maxDepth=4,
-                                                  nFolds=5,
-                                                  targetDataMatrix = targetDataRPShapeMatrix,
-                                                  trainingData = trainingData,
-                                                  trainingDataMatrix = trainingDataMatrix,
-                                                  SEED = 5)
+# stratShuffleSplitRFECVRandomForestClassification (nEstimators= 1000,
+#                                                   iterator1=10,
+#                                                   minSamplesSplit=2,
+#                                                   maxFeatures=None,
+#                                                   maxDepth=4,
+#                                                   nFolds=5,
+#                                                   targetDataMatrix = targetDataRPShapeMatrix,
+#                                                   trainingData = trainingData,
+#                                                   trainingDataMatrix = trainingDataMatrix,
+#                                                   SEED = 5)
 
 ## Output file summary
 fileName1 = './outputFiles/f1_score_all.csv'
@@ -123,3 +124,16 @@ fileName2 = './outputFiles/class_IFIRS.csv'
 fileName3 = './outputFiles/class_optimum_length.csv'
 fileName4 = './outputFiles/class_sel_feature_importances.csv'
 fileName5 = './outputFiles/class_rfecv_grid_scores.csv'
+fileName6 = './outputFiles/class_Rsq_score_all.csv'
+
+#
+
+iterator1 = 10
+
+
+classificationSixFilePlot(fileName1,
+                              fileName2,
+                              fileName3,
+                              fileName4,
+                              fileName5,
+                              fileName6, iterator1, trainingData)

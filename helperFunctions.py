@@ -983,4 +983,196 @@ def stratShuffleSplitRFECVRandomForestClassification(nEstimators,
     print(rfecvGridScoresAll)
     rfecvGridScoresAll.to_csv('./outputFiles/class_rfecv_grid_scores.csv')
 
+def classificationSixFilePlot(fileName1,
+                              fileName2,
+                              fileName3,
+                              fileName4,
+                              fileName5,
+                              fileName6, iterator1, trainingData):
+    nameFeatures = list(trainingData)
+    import pandas as pd
+    # import os
+    import matplotlib.pyplot as plt
+    sns.set(style="ticks", palette="muted", color_codes=False)
+    sns.despine(offset=10, trim=True)
+
+
+    def classificationSixFileImportForPlotting(fileName1,fileName2,fileName3,fileName4,fileName5,fileName6):
+        import pandas as pd
+        import os
+        from os import getcwd
+
+        # This is the script working directory. It is where the file is located and where things start.
+        scriptDir = getcwd()
+        # print(scriptDir)
+
+        # Move up one directory and check working directory.
+        # os.chdir("..")
+        # gitMasterDir = getcwd()
+        # print(gitMasterDir)
+
+        # os.chdir('Data')
+        transportDatabaseDir = getcwd()
+        # print(transportDatabaseDir)
+
+        path1 = os.path.join(transportDatabaseDir,fileName1)
+        path2 = os.path.join(transportDatabaseDir,fileName2)
+        path3 = os.path.join(transportDatabaseDir,fileName3)
+        path4 = os.path.join(transportDatabaseDir,fileName4)
+        path5 = os.path.join(transportDatabaseDir,fileName5)
+        path6 = os.path.join(transportDatabaseDir,fileName6)
+
+        reader_f1 = pd.DataFrame.from_csv(path1, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        reader_f2 = pd.DataFrame.from_csv(path2, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        reader_f3 = pd.DataFrame.from_csv(path3, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        reader_f4 = pd.DataFrame.from_csv(path4, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        reader_f5 = pd.DataFrame.from_csv(path5, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        reader_f6 = pd.DataFrame.from_csv(path6, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
+                                       tupleize_cols=False, infer_datetime_format=False)
+
+        return (reader_f1,reader_f2,reader_f3,reader_f4,reader_f5,reader_f6)
+
+    [F1_score_agg,
+     IFIRS_agg,
+     optimum_length,
+     sel_feature_importances,
+     rfecv_grid_scores,
+     r2_score] = classificationSixFileImportForPlotting(fileName1,
+                                                          fileName2,
+                                                          fileName3,
+                                                          fileName4,
+                                                          fileName5,
+                                                          fileName6)
+
+    # print F1_score_agg.mean()
+    # print F1_score_agg.max()
+    # print F1_score_agg.min()
+    # print r2_score
+    print "Median F1 Score", F1_score_agg.median(), "Standard Deviation: ", F1_score_agg.std()
+
+
+    rfecvMeansByNumberOfFeatures =  rfecv_grid_scores.mean(axis=0)
+    rfecvStdByNumberOfFeatures= rfecv_grid_scores.std(axis=0)
+    rfecv_grid_scores = rfecv_grid_scores*(1)
+    # print rfecv_grid_scores
+
+    fig = plt.figure(figsize=(20,6), dpi=100)
+    ax = fig.add_subplot(211)
+    rfecv_grid_scores =rfecv_grid_scores
+    gridWidth = rfecv_grid_scores.shape[1]
+    gridAppendData = []
+    columnGroups =  list(rfecv_grid_scores.columns)
+    # print columnGroups
+
+    rfecv_grid_scores = pd.DataFrame(rfecv_grid_scores)
+    sns.boxplot(data=rfecv_grid_scores,linewidth=.4)
+
+    holdoutBox = F1_score_agg
+    holdoutBox.columns = ['holF1']
+    holdoutBox['opLen'] = optimum_length
+    holdoutBox = pd.DataFrame(holdoutBox)
+
+
+    ax2 = fig.add_subplot(212)
+    # A = holdoutBox.boxplot(by='opLen',ax=ax2)
+    sns.boxplot(x='opLen',y='holF1',data=holdoutBox.sort('opLen'),linewidth=.4)
+    sns.stripplot(x='opLen',y='holF1',data=holdoutBox.sort('opLen'))
+    sns.despine(offset=10, trim=True)
+    plt.subplots_adjust(hspace=0.5, bottom=0.125)
+    plt.show()
+    # fig.savefig('Classification CV Score Vs. Feature Set Size.eps',format = 'eps')
+
+    ## Frequency distribution generation
+    IFIRS_agg_count = pd.DataFrame()
+    IFIRS_agg_count = list(IFIRS_agg.values)
+    # IFIRS_agg_count =  list(IFIRS_agg_count.values)
+    # plt.figure(figsize=(10,6), dpi=25)
+
+
+
+
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+
+    IFIRS_agg_count_feat_id_count = pd.DataFrame()
+    IFIRS_agg_count_feat_id = []
+
+
+    for feature_ids in nameFeatures:
+        df11 = IFIRS_agg_count.count(feature_ids)
+        df1 = df1.append([df11],ignore_index=True)
+
+        df22 = [feature_ids]
+        df2 = df2.append(df22,ignore_index=True)
+
+    df1 = df1/pd.Series(iterator1)*pd.Series(100)
+
+    df3 = pd.concat((df2,df1),axis=1)
+    df3.columns = ['feature','observation %']
+
+    # print df3
+
+    def remove_border(axes=None, top=False, right=False, left=True, bottom=True):
+        """
+        Minimize chartjunk by stripping out unnecesasry plot borders and axis ticks
+
+        The top/right/left/bottom keywords toggle whether the corresponding plot border is drawn
+        """
+        ax = axes or plt.gca()
+        ax.spines['top'].set_visible(top)
+        ax.spines['right'].set_visible(right)
+        ax.spines['left'].set_visible(left)
+        ax.spines['bottom'].set_visible(bottom)
+
+        #turn off all ticks
+        ax.yaxis.set_ticks_position('none')
+        ax.xaxis.set_ticks_position('none')
+
+        #now re-enable visibles
+        if top:
+            ax.xaxis.tick_top()
+        if bottom:
+            ax.xaxis.tick_bottom()
+        if left:
+            ax.yaxis.tick_left()
+        if right:
+            ax.yaxis.tick_right()
+
+    df3.sort(['observation %','feature'],ascending = [True,True], inplace=True)
+    df3.index = range(0,len(df3))
+    obs_freq = df3['observation %']
+    feature_imp = df3['feature']
+    pos = np.arange(len(obs_freq))
+
+    plt.title('Feature Frequency (%) Inclusion')
+    plt.barh(pos, obs_freq)
+    ## add the numbers to the side of each bar
+    for p, c, ch in zip(pos, feature_imp, obs_freq):
+        plt.annotate(str(ch), xy=(ch + 1, p + .5), va='center')
+
+    #cutomize ticks
+    ticks = plt.yticks(pos + .5, feature_imp)
+    xt = plt.xticks()[0]
+    plt.xticks(xt, [' '] * len(xt))
+
+    #minimize chartjunk
+    remove_border(left=False, bottom=False)
+    plt.grid(axis = 'x', color ='white', linestyle='-')
+
+    #set plot limits
+    plt.ylim(pos.max() + 1, pos.min() - 1)
+    plt.xlim(0, 120)
+    plt.savefig('featureSelectionFrequency.eps', format='eps', dpi=300)
+
+    plt.show()
 
