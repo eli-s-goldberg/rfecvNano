@@ -83,8 +83,8 @@ targetDataRFMatrix =  targetDataRF.as_matrix()
 trainingDataNames =  list(trainingData)
 # print trainingDataNames
 
-stratShuffleSplitRFECVRandomForestClassification (nEstimators= 100,
-                                                  iterator1=1,
+stratShuffleSplitRFECVRandomForestClassification (nEstimators= 1000,
+                                                  iterator1=10,
                                                   minSamplesSplit=2,
                                                   maxFeatures=None,
                                                   maxDepth=4,

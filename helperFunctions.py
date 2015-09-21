@@ -867,7 +867,7 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
         # with a random seed controlling the split.
 
         rfecv = RFECV(estimator=rfc, step=1, cv = StratifiedKFold(y_train,n_folds=nFolds,shuffle=True,random_state=SEED*kk),
-                      scoring='f1_samples') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro, f1_samples
+                      scoring='accuracy') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro, f1_samples
 
         # First, the recursive feature elimination model is trained. This fits to the optimum model and begins recursion.
         rfecv = rfecv.fit(X_train, y_train)
@@ -939,29 +939,29 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
     # Output file creation
     print("List of Important Features Identified by Recursive Selection Method:")
     print(nameListAll)
-    nameListAll.to_csv('class_IFIRS.csv')
+    nameListAll.to_csv('./outputFiles/class_IFIRS.csv')
     nameListAll.count()
 
     print("f1 weighted score for all runs:")
     print(classScoreAll)
-    classScoreAll.to_csv('f1_score_all.csv')
+    classScoreAll.to_csv('./outputFiles/f1_score_all.csv')
 
     print("R^2 score for all runs:")
     print(classScoreAll2)
-    classScoreAll2.to_csv('class_Rsq_score_all.csv')
+    classScoreAll2.to_csv('./outputFiles/class_Rsq_score_all.csv')
 
     print("MAE score for all runs:")
     print(classScoreAll3)
-    classScoreAll3.to_csv('class_MAE_score_all.csv')
+    classScoreAll3.to_csv('./outputFiles/class_MAE_score_all.csv')
 
     print("Optimal number of features:")
     print(optimumLengthAll)
-    optimumLengthAll.to_csv('class_optimum_length.csv')
+    optimumLengthAll.to_csv('./outputFiles/class_optimum_length.csv')
 
     print("Selected Feature Importances:")
     print(featureImportancesAll)
-    featureImportancesAll.to_csv('class_sel_feature_importances.csv')
+    featureImportancesAll.to_csv('./outputFiles/class_sel_feature_importances.csv')
 
     print("mean_squared_error Grid Score for Increasing Features")
     print(rfecvGridScoresAll)
-    rfecvGridScoresAll.to_csv('class_rfecv_grid_scores.csv')
+    rfecvGridScoresAll.to_csv('./outputFiles/class_rfecv_grid_scores.csv')
