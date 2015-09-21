@@ -95,8 +95,8 @@ stratShuffleSplitRFECVRandomForestClassification (nEstimators= 100,
                                                   SEED = 5)
 
 ## Output file summary
-fileName1 = 'f1_score_all.csv'
-fileName2 = 'class_IFIRS.csv'
-fileName3 = 'class_optimum_length.csv'
-fileName4 = 'class_sel_feature_importances.csv'
-fileName5 = 'class_rfecv_grid_scores.csv'
+fileName1 = './outputFiles/f1_score_all.csv'
+fileName2 = './outputFiles/class_IFIRS.csv'
+fileName3 = './outputFiles/class_optimum_length.csv'
+fileName4 = './outputFiles/class_sel_feature_importances.csv'
+fileName5 = './outputFiles/class_rfecv_grid_scores.csv'

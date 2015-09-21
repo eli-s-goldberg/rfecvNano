@@ -867,7 +867,7 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
         # with a random seed controlling the split.
 
         rfecv = RFECV(estimator=rfc, step=1, cv = StratifiedKFold(y_train,n_folds=nFolds,shuffle=True,random_state=SEED*kk),
-                      scoring='accuracy') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro
+                      scoring='f1_samples') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro, f1_samples
 
         # First, the recursive feature elimination model is trained. This fits to the optimum model and begins recursion.
         rfecv = rfecv.fit(X_train, y_train)
