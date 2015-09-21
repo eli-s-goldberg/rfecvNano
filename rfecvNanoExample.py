@@ -32,10 +32,6 @@ featuresToDrop = ['Hamaker','Dispersivity','NanoSize','pHIEPDist','PartCollSizeR
                   'mbEffluent', 'mbRetained','mbEffluent_norm']
 data = data.drop(featuresToDrop,1)
 
-# Let's check to see how correlated our variables are. print data.corr() to inspect values.
-# plot_corr(data,size=10)
-
-
 
 # rfecv seed (to control randomness and get repeatable results
 SEED = 69
@@ -43,33 +39,12 @@ SEED = 69
 # set the number of model iterations, where the more the better. Each run takes several minutes, so 100-500 is best.
 iterator1 = 10 # this is the number of model iterations to go through.
 
-# create the calculated data fields:
-data['tempKelvin'] = 298.15 # the temperature is always assumed to be 25 degrees.
-data['relPermValue'] = data.apply(relPermittivity,axis=1) # Calculate the relative permittivity value
-data['debyeLength'] = data.apply(debyeLength,axis=1) # Calculate the debye length
-data['pecletNumber'] = data.apply(pecletNumber,axis=1)
-data['aspectRatio'] = data.PartDiam/data.CollecDiam
-data['zetaRatio'] = data.PartZeta/data.CollecZeta
-data['pHIepRatio'] = data.pH/data.PartIEP
-
-# factorize the remaining training data fields
-data['Coating'] = data['Coating'].factorize()[0]
-data['SaltType'] = data['Coating'].factorize()[0]
-
-# Do not include any experiments which have null values.
-data = data.dropna()
-
-# Set the target data fields. In this case, the 'ObsRPShape' and the 'mbRetained_norm' (i.e., retained fration, RF).
-targetDataRPShape = data['ObsRPShape'].factorize()[0] # make sure that text values are converted to numeric values
-targetDataRPShapeUniqueList = list(set(data['ObsRPShape'].unique()))
-
-targetDataRF = data.mbRetained_norm
 
 
 # Drop the fields that are subordinate to the calculated fields (i.e., the ones wrapped up in the dimensionless numbers
 # (e.g., salttype and pH are in debyelength .
-data = data.drop(['ObsRPShape','mbRetained_norm','Darcy','NMId','ObsRPShape','relPermValue','tempKelvin','TypeNOM',
-                  'PartZeta','PartIEP','PartDiam','CollecDiam','CollecZeta','PvIn','IonStr','SaltType','pH'],1)
+data = data.drop(['ObsRPShape','mbRetained_norm','Darcy','NMId','ObsRPShape','relPermValue','tempKelvin',
+                  'PartZeta','PartIEP','PartDiam','CollecDiam','CollecZeta','IonStr','SaltType','pH'],1)
 
 # assign the remaining data to the training data set.
 trainingData = data

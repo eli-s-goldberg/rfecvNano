@@ -8,7 +8,7 @@
 # features include instructions for use. However, you're smart, and should be able to use these tools to build your own
 # rfecv feature selection tool using the examples provided in the rfecvNanoExample.py.
 
-def importNtpDatabase(sqliteFile, fileName, listOfFeatures): # This function imports the nanotransport database
+def importNtpDatabase(sqliteFile, fileName, listOfFeatures):  # This function imports the nanotransport database
     '''
     This function imports the transportData csv database. Note that there are some values which are factorized
     are extracted and exported:
@@ -63,10 +63,10 @@ def importNtpDatabase(sqliteFile, fileName, listOfFeatures): # This function imp
     import fnmatch
 
     # Look through project directory and locate transport database (filename)
-    matches = [] # initialize array to hold matches
+    matches = []  # initialize array to hold matches
     for root, dirnames, filenames in os.walk('..'):
-      for filename in fnmatch.filter(filenames, fileName):
-        matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, fileName):
+            matches.append(os.path.join(root, filename))
 
     print matches[0]
     # Move to the working directory that contains the transport database.
@@ -80,7 +80,7 @@ def importNtpDatabase(sqliteFile, fileName, listOfFeatures): # This function imp
     cursor = connection.cursor()
 
     # Set the path - this should be the matches?
-    path = os.path.join(transportDatabaseDir,fileName)
+    path = os.path.join(transportDatabaseDir, fileName)
 
     # Read CSV into dataframe
     reader = pd.DataFrame.from_csv(path, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
@@ -117,6 +117,7 @@ def importNtpDatabase(sqliteFile, fileName, listOfFeatures): # This function imp
     databaseName.Coating = databaseName.Coating.factorize()[0]
 
     return (sqliteFile, fileName, databaseName)
+
 
 def importNtpDatabaseWithUniques(sqliteFile, fileName, listOfFeatures):
     '''
@@ -173,10 +174,10 @@ def importNtpDatabaseWithUniques(sqliteFile, fileName, listOfFeatures):
     import fnmatch
 
     # Look through project directory and locate transport database (filename)
-    matches = [] # initialize array to hold matches
+    matches = []  # initialize array to hold matches
     for root, dirnames, filenames in os.walk('..'):
-      for filename in fnmatch.filter(filenames, fileName):
-        matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, fileName):
+            matches.append(os.path.join(root, filename))
 
     print matches[0]
     # Move to the working directory that contains the transport database.
@@ -190,7 +191,7 @@ def importNtpDatabaseWithUniques(sqliteFile, fileName, listOfFeatures):
     cursor = connection.cursor()
 
     # Set the path - this should be the matches?
-    path = os.path.join(transportDatabaseDir,fileName)
+    path = os.path.join(transportDatabaseDir, fileName)
 
     # Read CSV into dataframe
     reader = pd.DataFrame.from_csv(path, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
@@ -232,9 +233,10 @@ def importNtpDatabaseWithUniques(sqliteFile, fileName, listOfFeatures):
     databaseName.TypeNOM = databaseName.TypeNOM.factorize()[0]
     databaseName.Coating = databaseName.Coating.factorize()[0]
 
-    return (sqliteFile, fileName, databaseName, NMIdNames, SaltTypeNames,ObsRPShapeNames,TypeNOMNames,CoatingNames)
+    return (sqliteFile, fileName, databaseName, NMIdNames, SaltTypeNames, ObsRPShapeNames, TypeNOMNames, CoatingNames)
 
-def countClasses (target_feature):
+
+def countClasses(target_feature):
     '''
     This is a simple function to count the number in each class for classification result.
     * I found a more robust implementation for this old function. What I should do is bring it into pandas
@@ -245,22 +247,22 @@ def countClasses (target_feature):
     :return:
     '''
     import pandas as pd
-    target_feature= list(target_feature)
-    #HE
+    target_feature = list(target_feature)
+    # HE
     HE_count = target_feature.count(0)
-    #IRwd
+    # IRwd
     IRwD_count = target_feature.count(1)
-    #LD
+    # LD
     LD_count = target_feature.count(2)
-    #SIR
+    # SIR
     SIR_count = target_feature.count(3)
-    #IRwd
+    # IRwd
     EXP_count = target_feature.count(4)
 
-    return (HE_count,IRwD_count,LD_count,SIR_count,EXP_count)
+    return (HE_count, IRwD_count, LD_count, SIR_count, EXP_count)
 
 
-def multi2binRefactor (target_feature):
+def multi2binRefactor(target_feature):
     import numpy as np
     bin_class = []
     refactor_bin_class = []
@@ -283,7 +285,8 @@ def multi2binRefactor (target_feature):
     # refactor_bin_class = np.array(refactor_bin_class)
     return (refactor_bin_class)
 
-def countBinClasses (target_feature):
+
+def countBinClasses(target_feature):
     '''
     This is a simple function to count the number in each binary class for classification result.
     My common use for this is to count the number in class [0], which are HE and EXP, and
@@ -294,14 +297,14 @@ def countBinClasses (target_feature):
     :return: returns an array where item [0] is a count of the 0s and [1] is a count of the 1s.
     '''
 
-    target_feature= list(target_feature)
+    target_feature = list(target_feature)
     binClass1Count = target_feature.count(0)
     binClass2Count = target_feature.count(1)
 
-    return (binClass1Count,binClass2Count)
+    return (binClass1Count, binClass2Count)
+
 
 def exportTreeJson(decision_tree, out_file=None, feature_names=None):
-
     '''Export a decision tree in JSON format.
 
     This function generates a JSON representation of the decision tree,
@@ -392,7 +395,8 @@ def exportTreeJson(decision_tree, out_file=None, feature_names=None):
 
     return out_file
 
-def import_agg_rfecv_outputs(fileName1,fileName2,fileName3,fileName4,fileName5):
+
+def import_agg_rfecv_outputs(fileName1, fileName2, fileName3, fileName4, fileName5):
     '''
 
     :param fileName1:
@@ -419,26 +423,27 @@ def import_agg_rfecv_outputs(fileName1,fileName2,fileName3,fileName4,fileName5):
     transportDatabaseDir = getcwd()
     print(transportDatabaseDir)
 
-    path1 = os.path.join(transportDatabaseDir,fileName1)
-    path2 = os.path.join(transportDatabaseDir,fileName2)
-    path3 = os.path.join(transportDatabaseDir,fileName3)
-    path4 = os.path.join(transportDatabaseDir,fileName4)
-    path5 = os.path.join(transportDatabaseDir,fileName5)
+    path1 = os.path.join(transportDatabaseDir, fileName1)
+    path2 = os.path.join(transportDatabaseDir, fileName2)
+    path3 = os.path.join(transportDatabaseDir, fileName3)
+    path4 = os.path.join(transportDatabaseDir, fileName4)
+    path5 = os.path.join(transportDatabaseDir, fileName5)
 
     reader_f1 = pd.DataFrame.from_csv(path1, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
+                                      tupleize_cols=False, infer_datetime_format=False)
 
     reader_f2 = pd.DataFrame.from_csv(path2, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
+                                      tupleize_cols=False, infer_datetime_format=False)
 
     reader_f3 = pd.DataFrame.from_csv(path3, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
+                                      tupleize_cols=False, infer_datetime_format=False)
 
     reader_f4 = pd.DataFrame.from_csv(path4, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
+                                      tupleize_cols=False, infer_datetime_format=False)
 
     reader_f5 = pd.DataFrame.from_csv(path5, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
+                                      tupleize_cols=False, infer_datetime_format=False)
+
 
 def singleCSVImport(path1):
     '''
@@ -450,8 +455,7 @@ def singleCSVImport(path1):
     import pandas as pd
 
     return pd.DataFrame.from_csv(path1, header=0, sep=',', index_col=0, parse_dates=True, encoding=None,
-                                   tupleize_cols=False, infer_datetime_format=False)
-
+                                 tupleize_cols=False, infer_datetime_format=False)
 
 
 def getTreeLineage(tree, feature_names):
@@ -462,36 +466,36 @@ def getTreeLineage(tree, feature_names):
 
     '''
     import numpy as np
-    left      = tree.tree_.children_left
-    right     = tree.tree_.children_right
+    left = tree.tree_.children_left
+    right = tree.tree_.children_right
     threshold = tree.tree_.threshold
-    features  = [feature_names[i] for i in tree.tree_.feature]
+    features = [feature_names[i] for i in tree.tree_.feature]
 
     # get ids of child nodes
-    idx = np.argwhere(left == -1)[:,0]
+    idx = np.argwhere(left == -1)[:, 0]
 
     def recurse(left, right, child, lineage=None):
-         if lineage is None:
-             lineage = [child]
-         if child in left:
-             parent = np.where(left == child)[0].item()
-             split = 'l'
-         else:
-             parent = np.where(right == child)[0].item()
-             split = 'r'
-         lineage.append((parent, split, threshold[parent], features[parent]))
-         if parent == 0:
-             lineage.reverse()
-             return lineage
-         else:
-             return recurse(left, right, parent, lineage)
+        if lineage is None:
+            lineage = [child]
+        if child in left:
+            parent = np.where(left == child)[0].item()
+            split = 'l'
+        else:
+            parent = np.where(right == child)[0].item()
+            split = 'r'
+        lineage.append((parent, split, threshold[parent], features[parent]))
+        if parent == 0:
+            lineage.reverse()
+            return lineage
+        else:
+            return recurse(left, right, parent, lineage)
 
     for child in idx:
         for node in recurse(left, right, child):
             print node
 
 
-def relPermittivity (row):
+def relPermittivity(row):
     '''
 
     :param row: a dataframe with permittivities matching the following list (dataframes that contain other materials
@@ -523,30 +527,31 @@ def relPermittivity (row):
     '''
     if (row['NMId'] == 0):
         relPermVal = 4.4
-    elif (row['NMId'] == 1): # TiO2
+    elif (row['NMId'] == 1):  # TiO2
         relPermVal = 110
-    elif (row['NMId'] == 2): # ZnO
+    elif (row['NMId'] == 2):  # ZnO
         relPermVal = 2
-    elif (row['NMId'] == 3): # CuO
+    elif (row['NMId'] == 3):  # CuO
         relPermVal = 1
-    elif (row['NMId'] == 4): # MWCNTs
+    elif (row['NMId'] == 4):  # MWCNTs
         relPermVal = 1328
-    elif (row['NMId'] == 5): # Ag
+    elif (row['NMId'] == 5):  # Ag
         relPermVal = 2.65
-    elif (row['NMId'] == 6): # CeO2
+    elif (row['NMId'] == 6):  # CeO2
         relPermVal = 26
-    elif (row['NMId'] == 7): # Fe
+    elif (row['NMId'] == 7):  # Fe
         relPermVal = 14.2
-    elif (row['NMId'] == 8): # SiO2
+    elif (row['NMId'] == 8):  # SiO2
         relPermVal = 3.9
-    elif (row['NMId'] == 9): # nHAP
+    elif (row['NMId'] == 9):  # nHAP
         relPermVal = 7
-    elif (row['NMId'] == 10): # nBiochar
+    elif (row['NMId'] == 10):  # nBiochar
         relPermVal = 2.9
     else:
         relPermVal = 9999
 
     return float(relPermVal)
+
 
 def debyeLength(row):
     '''
@@ -572,22 +577,24 @@ def debyeLength(row):
 
 
     '''
-    permFreeSpace = float(8.854*10**-12)
-    bolzConstant = float(1.3806504*10**-23)
-    elecCharge = float(1.602176466*10**-19)
-    numAvagadro = float(6.02*10**23)
-    if (row['IonStr'] == 0) or (row['SaltType']==3):
-        ionStr1 = float(1*10**(float(row['pH'])-14))
-        ionStr2 = float(1*10**(-1*float(row['pH'])))
-        ZiCi = float(1**2*ionStr1 + 1**2*ionStr2)
-        return float((1/(float((numAvagadro*elecCharge**2/(permFreeSpace*float(row['relPermValue'])*bolzConstant*float(row['tempKelvin']))*ZiCi)**0.5))))
-    elif (row['SaltType']==1):
-        ZiCi = float(2**2*float(row['IonStr']) + 1**2*2*float(row['IonStr']))
-        return float((1/(float((numAvagadro*elecCharge**2/(permFreeSpace*float(row['relPermValue'])*bolzConstant*float(row['tempKelvin']))*ZiCi)**0.5))))
+    permFreeSpace = float(8.854 * 10 ** -12)
+    bolzConstant = float(1.3806504 * 10 ** -23)
+    elecCharge = float(1.602176466 * 10 ** -19)
+    numAvagadro = float(6.02 * 10 ** 23)
+    if (row['IonStr'] == 0) or (row['SaltType'] == 3):
+        ionStr1 = float(1 * 10 ** (float(row['pH']) - 14))
+        ionStr2 = float(1 * 10 ** (-1 * float(row['pH'])))
+        ZiCi = float(1 ** 2 * ionStr1 + 1 ** 2 * ionStr2)
+        return float((1 / (float((numAvagadro * elecCharge ** 2 / (
+        permFreeSpace * float(row['relPermValue']) * bolzConstant * float(row['tempKelvin'])) * ZiCi) ** 0.5))))
+    elif (row['SaltType'] == 1):
+        ZiCi = float(2 ** 2 * float(row['IonStr']) + 1 ** 2 * 2 * float(row['IonStr']))
+        return float((1 / (float((numAvagadro * elecCharge ** 2 / (
+        permFreeSpace * float(row['relPermValue']) * bolzConstant * float(row['tempKelvin'])) * ZiCi) ** 0.5))))
     else:
-        ZiCi = float(1**2*float(row['IonStr']) + 1**2*float(row['IonStr']))
-        return float((1/(float((numAvagadro*elecCharge**2/(permFreeSpace*float(row['relPermValue'])*bolzConstant*float(row['tempKelvin']))*ZiCi)**0.5))))
-
+        ZiCi = float(1 ** 2 * float(row['IonStr']) + 1 ** 2 * float(row['IonStr']))
+        return float((1 / (float((numAvagadro * elecCharge ** 2 / (
+        permFreeSpace * float(row['relPermValue']) * bolzConstant * float(row['tempKelvin'])) * ZiCi) ** 0.5))))
 
 
 def epmToZeta(row):
@@ -600,10 +607,11 @@ def epmToZeta(row):
     :references 'Dielectric Constant of Water from 0 to 100 C', Malmberg and Maryott 1956
     '''
 
-    dialConstWater25 = 7.083e-12 #CV**(-1/cm) @ 25C
-    tempC = float(row['tempKelvin'])- 273.15
-    dialConstWater = 87.740- 0.40008*tempC + 9.398*(10**-4)*(tempC**2) - 1.410*(10**-6)*(tempC**3)
+    dialConstWater25 = 7.083e-12  # CV**(-1/cm) @ 25C
+    tempC = float(row['tempKelvin']) - 273.15
+    dialConstWater = 87.740 - 0.40008 * tempC + 9.398 * (10 ** -4) * (tempC ** 2) - 1.410 * (10 ** -6) * (tempC ** 3)
     return float(dialConstWater)
+
 
 def absViscTempWater(row):
     '''
@@ -630,7 +638,7 @@ def absViscTempWater(row):
     A = float(-3.7188)
     B = float(578.919)
     C = float(-137.546)
-    return float(math.exp(A+(B/(C+float(row['tempKelvin'])))))
+    return float(math.exp(A + (B / (C + float(row['tempKelvin'])))))
 
 
 def densityWaterTemp(row):
@@ -656,9 +664,10 @@ def densityWaterTemp(row):
 
     '''
 
-    return float(998.2071/(1+0.000207*(float(row['tempKelvin'])-293.15)))
+    return float(998.2071 / (1 + 0.000207 * (float(row['tempKelvin']) - 293.15)))
 
-def chordInputData (DataSet,corrVarName1,corrVarName2,csvName,indexNames, NMIdNames):
+
+def chordInputData(DataSet, corrVarName1, corrVarName2, csvName, indexNames, NMIdNames):
     '''
     :param DataSet: This is a dataframe containing the data with uniques (i.e., from importNtpDatabaseWithUniques)
                         The dataset should have headers.
@@ -683,20 +692,21 @@ def chordInputData (DataSet,corrVarName1,corrVarName2,csvName,indexNames, NMIdNa
     out = pd.DataFrame()
     out[corrVarName1] = correlationVariable1
     out[corrVarName2] = correlationVariable2
-    out = out.groupby([corrVarName2,corrVarName1],squeeze=True).size()
-    numberGroups = max(correlationVariable2)+1
+    out = out.groupby([corrVarName2, corrVarName1], squeeze=True).size()
+    numberGroups = max(correlationVariable2) + 1
     a = []
-    for i in range (0,numberGroups):
+    for i in range(0, numberGroups):
         b = out[i]
         a.append(b)
-    df = pd.DataFrame(a).fillna(0,inplace=False)
+    df = pd.DataFrame(a).fillna(0, inplace=False)
     df.columns = NMIdNames
     df.index = indexNames
     df.to_csv(csvName)
     print df
     return df
 
-def linBinValueDataForChord (row,binVariable, noBins):
+
+def linBinValueDataForChord(row, binVariable, noBins):
     '''
     :param row:  a dataframe
     :param binVariable: the variable that you want to bin
@@ -711,11 +721,12 @@ def linBinValueDataForChord (row,binVariable, noBins):
     import numpy as np
     ntpMin = min(row[binVariable])
     ntpMax = max(row[binVariable])
-    bins = np.linspace(ntpMin,ntpMax,noBins)
-    mask = np.digitize(row[binVariable],bins)
-    return mask,bins
+    bins = np.linspace(ntpMin, ntpMax, noBins)
+    mask = np.digitize(row[binVariable], bins)
+    return mask, bins
 
-def logBinValueDataForChord (row,binVariable, noBins):
+
+def logBinValueDataForChord(row, binVariable, noBins):
     '''
     :param row:  a dataframe
     :param binVariable: the variable that you want to bin
@@ -730,12 +741,12 @@ def logBinValueDataForChord (row,binVariable, noBins):
     import numpy as np
     ntpMin = min(row[binVariable])
     ntpMax = max(row[binVariable])
-    bins = np.logspace(start=np.log10(ntpMin),stop = np.log10(ntpMax),num = noBins, endpoint=True)
-    mask = np.digitize(row[binVariable],bins)
-    return mask,bins
+    bins = np.logspace(start=np.log10(ntpMin), stop=np.log10(ntpMax), num=noBins, endpoint=True)
+    mask = np.digitize(row[binVariable], bins)
+    return mask, bins
 
 
-def pecletNumber (row):
+def pecletNumber(row):
     '''
 
     :param row: a dataframe with at the following columns:
@@ -746,18 +757,20 @@ def pecletNumber (row):
 
     # Stokes-einstein diffusion correction factor when bounded by solid walls and/or fluid-fluid interfaces
     # Rajagopalan and Tien, 1976
-    bolzConstant = float(1.3806504*10**-23)
+    bolzConstant = float(1.3806504 * 10 ** -23)
     A = float(-3.7188)
     B = float(578.919)
     C = float(-137.546)
-    absVisc =  float(math.exp(A+(B/(C+float(row['tempKelvin'])))))/1000
-    densWater = float(998.2071/(1+0.000207*(float(row['tempKelvin'])-293.15)))
-    kin_visc = absVisc/densWater
-    stokesEinsteinDiff =  float(bolzConstant*float(row['tempKelvin']))/(6*math.pi*absVisc*float(row['PartDiam']/2))
+    absVisc = float(math.exp(A + (B / (C + float(row['tempKelvin']))))) / 1000
+    densWater = float(998.2071 / (1 + 0.000207 * (float(row['tempKelvin']) - 293.15)))
+    kin_visc = absVisc / densWater
+    stokesEinsteinDiff = float(bolzConstant * float(row['tempKelvin'])) / (
+    6 * math.pi * absVisc * float(row['PartDiam'] / 2))
 
-    return float (row['Darcy']*row['CollecDiam']/stokesEinsteinDiff)
+    return float(row['Darcy'] * row['CollecDiam'] / stokesEinsteinDiff)
 
-def plot_corr(df,size=10):
+
+def plot_corr(df, size=10):
     '''Function plots a graphical correlation matrix for each pair of columns in the dataframe.
 
     Input:
@@ -769,30 +782,31 @@ def plot_corr(df,size=10):
 
     corr = df.corr()
     label = df.corr()
-    mask = np.tri(corr.shape[0],k=-1)
-    corr = np.ma.array(corr,mask=mask)
+    mask = np.tri(corr.shape[0], k=-1)
+    corr = np.ma.array(corr, mask=mask)
     mask[np.triu_indices_from(mask)] = True
 
     fig, ax = plt.subplots(figsize=(size, size))
     ax.matshow(corr)
-    cmap = cm.get_cmap('jet',10)
+    cmap = cm.get_cmap('jet', 10)
     cmap.set_bad('w')
 
     plt.xticks(range(len(label.columns)), label.columns, rotation=90)
     plt.yticks(range(len(label.columns)), label.columns)
-    ax.imshow(corr,interpolation='nearest',cmap=cmap)
+    ax.imshow(corr, interpolation='nearest', cmap=cmap)
     plt.show()
 
-def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
-                                                      iterator1,
-                                                      minSamplesSplit,
-                                                      maxFeatures,
-                                                      maxDepth,
-                                                      nFolds,
-                                                      targetDataMatrix,
-                                                      trainingData,
-                                                      trainingDataMatrix,
-                                                      SEED):
+
+def stratShuffleSplitRFECVRandomForestClassification(nEstimators,
+                                                     iterator1,
+                                                     minSamplesSplit,
+                                                     maxFeatures,
+                                                     maxDepth,
+                                                     nFolds,
+                                                     targetDataMatrix,
+                                                     trainingData,
+                                                     trainingDataMatrix,
+                                                     SEED):
     '''
 
     :param nEstimators: This is the number of trees in the forest (typically 500-1000 or so)
@@ -855,19 +869,20 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
 
     ## Employ Recursive feature elimination with automatic tuning of the number of features selected with CV (RFECV)
     #
-    for kk in range(0,iterator1):
-        print "iteration no: ", kk+1
+    for kk in range(0, iterator1):
+        print "iteration no: ", kk + 1
         # Shuffle and split the dataset using a stratified approach to minimize the influence of class imbalance.
-        SSS = StratifiedShuffleSplit(targetDataMatrix, n_iter=1,test_size=0.10,random_state=SEED*kk)
-        for train_index,test_index in SSS:
-            X_train, X_holdout = trainingDataMatrix[train_index],trainingDataMatrix[test_index]
-            y_train, y_holdout = targetDataMatrix[train_index],targetDataMatrix[test_index]
+        SSS = StratifiedShuffleSplit(targetDataMatrix, n_iter=1, test_size=0.10, random_state=SEED * kk)
+        for train_index, test_index in SSS:
+            X_train, X_holdout = trainingDataMatrix[train_index], trainingDataMatrix[test_index]
+            y_train, y_holdout = targetDataMatrix[train_index], targetDataMatrix[test_index]
 
         # Call the RFECV function. Additional splitting is done by stratification shuffling and splitting. 5 folds. 5 times,
         # with a random seed controlling the split.
 
-        rfecv = RFECV(estimator=rfc, step=1, cv = StratifiedKFold(y_train,n_folds=nFolds,shuffle=True,random_state=SEED*kk),
-                      scoring='accuracy') # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro, f1_samples
+        rfecv = RFECV(estimator=rfc, step=1,
+                      cv=StratifiedKFold(y_train, n_folds=nFolds, shuffle=True, random_state=SEED * kk),
+                      scoring='accuracy')  # Can  use 'accuracy' or 'f1' f1_weighted, f1_macro, f1_samples
 
         # First, the recursive feature elimination model is trained. This fits to the optimum model and begins recursion.
         rfecv = rfecv.fit(X_train, y_train)
@@ -879,7 +894,7 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
 
         # Third, the .support_ attribute reports whether the feature remains after RFECV or not. The possible parameters are
         # inspected by their ranking. Low ranking features are removed.
-        supPort = rfecv.support_ # True/False values, where true is a parameter of importance identified by recursive alg.
+        supPort = rfecv.support_  # True/False values, where true is a parameter of importance identified by recursive alg.
         possParams = rfecv.ranking_
         min_feature_params = rfecv.get_params(deep=True)
         optimumLengthAll = optimumLengthAll.append([rfecv.n_features_])
@@ -892,19 +907,19 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
 
         # Loop over each item in the list of true/false values, if true, pull out the corresponding feature name and store
         # it in the appended namelist. This namelist is rewritten each time, but the information is retained.
-        nameList = []   # Initialize a blank array to accept the list of names for features identified as 'True',
-                        # or important.
+        nameList = []  # Initialize a blank array to accept the list of names for features identified as 'True',
+        # or important.
         # print featureSetIDs
         # print len(featureSetIDs)
-        for i in range(0,len(featureSetIDs)):
+        for i in range(0, len(featureSetIDs)):
             if featureSetIDs[i]:
                 nameList.append(feature_names[i])
             else:
-                a=1
+                a = 1
                 # print("didn't make it")
                 # print(feature_names[i])
         nameList = pd.DataFrame(nameList)
-        nameListAll = nameListAll.append(nameList) # append the name list
+        nameListAll = nameListAll.append(nameList)  # append the name list
         nameList = list(nameList)
         nameList = np.array(nameList)
 
@@ -918,21 +933,23 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
 
         # Fifth, no recursive feature elimination is needed (it has already been done and the poor features removed).
         # Here the model is trained against the trimmed training set X's and corresponding Y's.
-        rfc.fit(X_trimTrainSet,y_train)
+        rfc.fit(X_trimTrainSet, y_train)
 
         # Holdout test results are generated here.
-        preds = rfc.predict(X_trimHoldoutSet) # Predict the class from the holdout dataset. Previous call: rfecv.predict(X_holdout)
+        preds = rfc.predict(
+            X_trimHoldoutSet)  # Predict the class from the holdout dataset. Previous call: rfecv.predict(X_holdout)
         print preds
         print y_holdout
-        rfc_all_f1 = metrics.f1_score(y_holdout,preds,average = 'weighted') # determine the F1
-        rfc_all_f2 = metrics.r2_score(y_holdout,preds) # determine the R^2 Score
-        rfc_all_f3 = metrics.mean_absolute_error(y_holdout,preds) # determine the MAE - Do this because we want to determine sign.
+        rfc_all_f1 = metrics.f1_score(y_holdout, preds, average='weighted')  # determine the F1
+        rfc_all_f2 = metrics.r2_score(y_holdout, preds)  # determine the R^2 Score
+        rfc_all_f3 = metrics.mean_absolute_error(y_holdout,
+                                                 preds)  # determine the MAE - Do this because we want to determine sign.
 
         # append the previous scores for aggregated analysis
-        classScoreAll = classScoreAll.append([rfc_all_f1]) # append the previous scores for aggregated analysis.
+        classScoreAll = classScoreAll.append([rfc_all_f1])  # append the previous scores for aggregated analysis.
         classScoreAll2 = classScoreAll2.append([rfc_all_f2])
         classScoreAll3 = classScoreAll3.append([rfc_all_f3])
-        refinedFeatureImportances = rfc.feature_importances_ # determine the feature importances for aggregated analysis.
+        refinedFeatureImportances = rfc.feature_importances_  # determine the feature importances for aggregated analysis.
         featureImportancesAll = featureImportancesAll.append([refinedFeatureImportances])
 
 
@@ -965,3 +982,5 @@ def stratShuffleSplitRFECVRandomForestClassification (nEstimators,
     print("mean_squared_error Grid Score for Increasing Features")
     print(rfecvGridScoresAll)
     rfecvGridScoresAll.to_csv('./outputFiles/class_rfecv_grid_scores.csv')
+
+
